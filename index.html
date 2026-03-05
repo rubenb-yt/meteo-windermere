@@ -148,9 +148,6 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-h
 /* FOOTER */
 .ftr{text-align:center;padding:20px 0 6px;font-size:9px;color:var(--tx3);border-top:1px solid var(--brd);margin-top:12px}.ftr .cy{color:var(--cy)}
 
-/* LOADING */
-.ld-ov{
-
 /* ═══ HERO BRIEFING ═══ */
 .hero{background:linear-gradient(135deg,rgba(34,211,238,.06) 0%,rgba(99,102,241,.04) 50%,rgba(251,191,36,.04) 100%);border:1px solid rgba(34,211,238,.12);border-radius:16px;padding:20px;margin-bottom:22px;position:relative;overflow:hidden}
 .hero::after{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;background:radial-gradient(circle,rgba(34,211,238,.06),transparent 70%);pointer-events:none}
@@ -371,7 +368,7 @@ function aggH(idx){
   return{temp:wAvg(t,ww),feels:wAvg(at,ww),hum:wAvg(hu,ww),prec:wAvg(pr,ww),pProb:wAvg(pp,ww),cloud:wAvg(cc,ww),
     wind:wAvg(ws,ww),gust:wAvg(wg,ww),wdir:wAvg(wd,ww),press:wAvg(sp,ww),vis:wAvg(vi,ww),uvIdx:wAvg(uv,ww),
     codes:wc.filter(c=>c!=null),tSpread:spread(t),rawT:t,rawP:pr,rawPP:pp,
-    tMin:Math.min(...t.filter(x=>x!=null)),tMax:Math.max(...t.filter(x=>x!=null))};
+    tMin:(()=>{const f=t.filter(x=>x!=null);return f.length?Math.min(...f):null})(),tMax:(()=>{const f=t.filter(x=>x!=null);return f.length?Math.max(...f):null})()};
 }
 
 function aggD(di){
@@ -848,9 +845,6 @@ async function doRef(){
   if(ov)ov.classList.add("hid");
 }
 
-// INIT
-(async()=>{await fetchAll();render();document.getElementById("ld").classList.add("hid");})();
-
 // ══════════════════════════════════════════════
 //  OFFLINE CACHE (IndexedDB)
 // ══════════════════════════════════════════════
@@ -886,7 +880,7 @@ fetchAll=async function(){
 };
 
 // On load: if fetch fails, try offline data
-const origInit=(async()=>{
+(async()=>{
   // Try to load previous snapshot first (for diff on first render)
   try{prevSnapshot=await dbGet('previous');}catch(e){prevSnapshot=null;}
   
