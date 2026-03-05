@@ -149,6 +149,61 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-h
 .ftr{text-align:center;padding:20px 0 6px;font-size:9px;color:var(--tx3);border-top:1px solid var(--brd);margin-top:12px}.ftr .cy{color:var(--cy)}
 
 /* LOADING */
+.ld-ov{
+
+/* ═══ HERO BRIEFING ═══ */
+.hero{background:linear-gradient(135deg,rgba(34,211,238,.06) 0%,rgba(99,102,241,.04) 50%,rgba(251,191,36,.04) 100%);border:1px solid rgba(34,211,238,.12);border-radius:16px;padding:20px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-40%;right:-10%;width:200px;height:200px;background:radial-gradient(circle,rgba(34,211,238,.06),transparent 70%);pointer-events:none}
+.hero-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.hero-now{flex:1;min-width:200px}
+.hero-now-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cy);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.hero-now-tag .live-dot{width:6px;height:6px;border-radius:50%;background:var(--gn);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 4px rgba(74,222,128,.5)}50%{opacity:.5;box-shadow:none}}
+.hero-temp-row{display:flex;align-items:baseline;gap:10px;margin:4px 0 6px}
+.hero-temp{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;line-height:1;color:var(--am)}
+.hero-feels{font-size:13px;color:var(--tx2)}
+.hero-cond{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.hero-cond-icon{font-size:28px}
+.hero-cond-text{font-size:16px;font-weight:700}
+.hero-stats{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--tx2)}
+.hero-stat{display:flex;align-items:center;gap:4px}
+.hero-stat .hs-icon{font-size:13px}
+.hero-stat .hs-val{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--tx);font-size:11px}
+
+.hero-next{flex:1.2;min-width:240px}
+.hero-next-title{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--pu);margin-bottom:8px}
+.hero-events{display:flex;flex-direction:column;gap:6px}
+.hero-ev{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid var(--brd)}
+.hero-ev.warn{border-left-color:var(--am)}.hero-ev.alert{border-left-color:var(--ro)}.hero-ev.info{border-left-color:var(--cy)}.hero-ev.good{border-left-color:var(--gn)}
+.hero-ev-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3);min-width:42px;flex-shrink:0;padding-top:1px}
+.hero-ev-text{font-size:11px;line-height:1.45;color:var(--tx2)}
+.hero-ev-text strong{color:var(--tx)}
+
+.hero-hours{display:flex;gap:2px;margin-top:12px;overflow-x:auto;padding-bottom:4px}
+.hero-hh{width:32px;flex-shrink:0;text-align:center;padding:4px 0;border-radius:6px;transition:background .15s}
+.hero-hh:hover{background:rgba(255,255,255,.04)}
+.hero-hh .hh-t{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--tx3)}
+.hero-hh .hh-i{font-size:12px;line-height:1.3}
+.hero-hh .hh-d{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;color:var(--am)}
+.hero-hh .hh-r{height:16px;width:8px;margin:2px auto 0;border-radius:2px;background:rgba(56,189,248,.1);position:relative;overflow:hidden}
+.hero-hh .hh-rf{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,#0ea5e9,#6366f1);border-radius:2px;transition:height .5s}
+
+/* LOADING (moved) */
+
+/* ═══ DIFF / TREND INDICATORS ═══ */
+.diff{display:inline-flex;align-items:center;gap:3px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:1px 6px;border-radius:6px;margin-left:4px;vertical-align:middle}
+.diff.up{color:#4ade80;background:rgba(74,222,128,.1)}.diff.dn{color:#fb7185;background:rgba(251,113,133,.1)}.diff.eq{color:var(--tx3);background:rgba(255,255,255,.03)}
+.diff-arrow{font-size:9px}
+
+.diff-banner{background:var(--card);border:1px solid var(--brd);border-radius:12px;padding:14px 18px;margin-bottom:18px;position:relative;overflow:hidden}
+.diff-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cy),var(--pu))}
+.diff-banner-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pu);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.diff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+.diff-item{padding:8px 10px;background:rgba(0,0,0,.15);border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+.diff-item .di-label{font-size:10px;color:var(--tx2)}.diff-item .di-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.diff-item .di-old{font-size:9px;color:var(--tx3);margin-top:1px}
+.diff-item .di-change{display:flex;flex-direction:column;align-items:flex-end}
+
 .ld-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,12,24,.9);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .35s}
 .ld-ov.hid{opacity:0;pointer-events:none}
 .ld-sp{width:36px;height:36px;border:3px solid var(--brd);border-top-color:var(--cy);border-radius:50%;animation:sp .7s linear infinite}
@@ -179,6 +234,90 @@ const DV="temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_
 //  STATE
 // ══════════════════════════════════════════════
 let MD={},MS={},lastUp=null,charts=[];
+let prevSnapshot=null; // Previous aggregation for diff
+
+// ══════════════════════════════════════════════
+//  SNAPSHOT & DIFF ENGINE
+// ══════════════════════════════════════════════
+function takeSnapshot(){
+  // Capture current daily aggregates for diffing later
+  const dates=getDates();
+  if(!dates.length)return null;
+  const dailies=dates.map((_,i)=>aggD(i));
+  return{time:new Date().toISOString(),dates,dailies};
+}
+
+function computeDiff(prev,curr){
+  if(!prev||!curr||!prev.dailies||!curr.dailies)return null;
+  // Match days by date string
+  const diffs=[];
+  for(let i=0;i<curr.dates.length;i++){
+    const pi=prev.dates.indexOf(curr.dates[i]);
+    if(pi<0)continue;
+    const p=prev.dailies[pi],c=curr.dailies[i];
+    diffs.push({
+      date:curr.dates[i],
+      dMax:c.mx!=null&&p.mx!=null?c.mx-p.mx:null,
+      dMin:c.mn!=null&&p.mn!=null?c.mn-p.mn:null,
+      dPrec:c.pSum!=null&&p.pSum!=null?c.pSum-p.pSum:null,
+      dWind:c.gMx!=null&&p.gMx!=null?c.gMx-p.gMx:null,
+      dConf:c.conf-p.conf,
+      prevMx:p.mx,prevMn:p.mn,prevP:p.pSum,prevW:p.gMx,prevConf:p.conf
+    });
+  }
+  // Aggregate summary
+  const avgDMax=diffs.length?diffs.reduce((s,d)=>s+(d.dMax||0),0)/diffs.length:0;
+  const avgDPrec=diffs.length?diffs.reduce((s,d)=>s+(d.dPrec||0),0)/diffs.length:0;
+  const avgDConf=diffs.length?diffs.reduce((s,d)=>s+d.dConf,0)/diffs.length:0;
+  const totalPrecPrev=diffs.reduce((s,d)=>s+(d.prevP||0),0);
+  const totalPrecNow=diffs.reduce((s,d)=>s+(d.prevP||0)+(d.dPrec||0),0);
+  
+  return{diffs,avgDMax,avgDPrec,avgDConf,totalPrecPrev,totalPrecNow,prevTime:prev.time};
+}
+
+function diffBadge(val,unit,invert=false){
+  if(val==null||Math.abs(val)<0.1)return`<span class="diff eq">= ${unit}</span>`;
+  const up=invert?val<0:val>0;
+  const cls=up?"up":"dn";
+  const arrow=up?"▲":"▼";
+  const sign=val>0?"+":"";
+  return`<span class="diff ${cls}"><span class="diff-arrow">${arrow}</span>${sign}${r1(val)}${unit}</span>`;
+}
+
+function buildDiffBanner(diff){
+  if(!diff)return"";
+  const prevDate=new Date(diff.prevTime);
+  const timeAgo=Math.round((new Date()-prevDate)/60000);
+  const timeStr=timeAgo<60?`${timeAgo} min fa`:timeAgo<1440?`${Math.round(timeAgo/60)}h fa`:`${Math.round(timeAgo/1440)}g fa`;
+  
+  // Overall trend narrative
+  let narrative="";
+  if(diff.avgDMax>1)narrative="📈 Le previsioni si sono scaldate rispetto all'ultimo check.";
+  else if(diff.avgDMax<-1)narrative="📉 Le previsioni si sono raffreddate.";
+  else narrative="➡️ Temperature sostanzialmente stabili.";
+  
+  if(diff.avgDPrec>1)narrative+=" 🌧️ Prevista più pioggia di prima.";
+  else if(diff.avgDPrec<-0.5)narrative+=" ☀️ Meno pioggia rispetto a prima.";
+  
+  if(diff.avgDConf>3)narrative+=" ✅ I modelli convergono: affidabilità in aumento.";
+  else if(diff.avgDConf<-3)narrative+=" ⚠️ I modelli divergono: affidabilità in calo.";
+
+  return`<div class="diff-banner">
+    <div class="diff-banner-title">📊 Variazioni rispetto all'ultimo aggiornamento <span style="color:var(--tx3);font-weight:400">(${timeStr})</span></div>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:10px;line-height:1.5">${narrative}</div>
+    <div class="diff-grid">
+      ${diff.diffs.map(d=>{
+        const dn=dayNm(d.date);
+        return`<div class="diff-item"><div><div class="di-label">${dn}</div><div class="di-old">era: ${r0(d.prevMx)}°/${r0(d.prevMn)}° · ${r1(d.prevP)}mm</div></div>
+        <div class="di-change">
+          <div>${diffBadge(d.dMax,"°")} max</div>
+          <div>${diffBadge(d.dPrec,"mm",true)} pioggia</div>
+          <div>${diffBadge(d.dConf,"%")} affid.</div>
+        </div></div>`;
+      }).join("")}
+    </div>
+  </div>`;
+}
 
 // ══════════════════════════════════════════════
 //  FETCH
@@ -350,6 +489,126 @@ function trafficLight(di,dAgg){
 }
 
 // ══════════════════════════════════════════════
+//  HERO BRIEFING — "adesso + prossime ore"
+// ══════════════════════════════════════════════
+function buildHero(){
+  const hours=getHourTimes();if(!hours.length)return"";
+  
+  // Find current hour index
+  const now=new Date();
+  let nowIdx=0;
+  for(let i=0;i<hours.length;i++){
+    const ht=new Date(hours[i]);
+    if(ht<=now)nowIdx=i; else break;
+  }
+  
+  const cur=aggH(nowIdx);
+  const mc=majCode(cur.codes);
+  
+  // ── Scan next 18 hours for events ──
+  const events=[];
+  let nextRainH=null,nextDryH=null,nextGustH=null,nextFrostH=null,nextClearH=null;
+  const isRainingNow=(cur.prec||0)>0.1;
+  
+  for(let i=1;i<=18&&(nowIdx+i)<hours.length;i++){
+    const a=aggH(nowIdx+i);
+    const ht=new Date(hours[nowIdx+i]);
+    const hStr=String(ht.getHours()).padStart(2,"0")+":00";
+    const inH=i===1?"tra 1 ora":`tra ${i}h`;
+    
+    // Next rain start
+    if(!nextRainH&&!isRainingNow&&(a.prec||0)>0.2&&(a.pProb||0)>40){
+      nextRainH=i;
+      events.push({time:hStr,text:`🌧️ <strong>Pioggia prevista</strong> (${inH}) — prob. ${r0(a.pProb)}%, ${r1(a.prec)}mm/h`,cls:"warn"});
+    }
+    // Next dry spell if raining now
+    if(!nextDryH&&isRainingNow&&(a.prec||0)<0.1&&(a.pProb||0)<30){
+      nextDryH=i;
+      events.push({time:hStr,text:`☀️ <strong>Fine pioggia</strong> (${inH}) — finestra asciutta`,cls:"good"});
+    }
+    // Strong gusts
+    if(!nextGustH&&(a.gust||0)>40){
+      nextGustH=i;
+      events.push({time:hStr,text:`💨 <strong>Raffiche ${r0(a.gust)} km/h</strong> (${inH}) — cautela all'aperto`,cls:"alert"});
+    }
+    // Frost
+    if(!nextFrostH&&a.temp!=null&&a.temp<1){
+      nextFrostH=i;
+      events.push({time:hStr,text:`❄️ <strong>Temperatura sotto 1°C</strong> (${inH}) — rischio gelata`,cls:"warn"});
+    }
+    // Clear sky window
+    if(!nextClearH&&(a.cloud||100)<25&&(a.prec||0)<0.05){
+      nextClearH=i;
+      events.push({time:hStr,text:`✨ <strong>Cielo sereno</strong> (${inH}) — ottimo per uscire`,cls:"good"});
+    }
+  }
+  
+  // Temperature trend next 6h
+  const temps6=[];for(let i=0;i<=6&&(nowIdx+i)<hours.length;i++){const a=aggH(nowIdx+i);if(a.temp!=null)temps6.push(a.temp);}
+  if(temps6.length>=4){
+    const trend=temps6[temps6.length-1]-temps6[0];
+    if(trend<=-3)events.push({time:"6h",text:`📉 Temperatura in forte calo (${trend>0?"+":""}${r1(trend)}°C nelle prossime 6 ore)`,cls:"info"});
+    else if(trend>=3)events.push({time:"6h",text:`📈 Temperatura in forte salita (+${r1(trend)}°C nelle prossime 6 ore)`,cls:"info"});
+  }
+  
+  // If no events, say it's calm
+  if(!events.length)events.push({time:"—",text:"✅ <strong>Nessun evento rilevante</strong> nelle prossime 18 ore. Condizioni stabili.",cls:"good"});
+  
+  // Limit to top 4 events
+  const topEvents=events.slice(0,4);
+  
+  // ── Build next-12h mini timeline ──
+  const miniH=[];
+  for(let i=0;i<12&&(nowIdx+i)<hours.length;i++){
+    const a=aggH(nowIdx+i);
+    const ht=new Date(hours[nowIdx+i]);
+    const hStr=String(ht.getHours()).padStart(2,"0");
+    const mcc=majCode(a.codes);
+    const rainPct=Math.min(100,Math.round((a.prec||0)/3*100));// scale 3mm=100%
+    miniH.push({h:hStr,ic:wIcon(mcc),t:r0(a.temp),rPct:rainPct});
+  }
+  
+  // Visibility description
+  const visStr=cur.vis!=null?(cur.vis>20000?"Ottima":cur.vis>10000?"Buona":cur.vis>4000?"Moderata":"Scarsa"):"—";
+  
+  return `<div class="hero">
+    <div class="hero-top">
+      <div class="hero-now">
+        <div class="hero-now-tag"><span class="live-dot"></span>ADESSO · ${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}</div>
+        <div class="hero-temp-row">
+          <div class="hero-temp">${r0(cur.temp)}°</div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <div class="hero-feels">Percepita ${r0(cur.feels)}°C</div>
+            <div class="hero-feels" style="font-size:10px;color:var(--tx3)">Spread: ±${r1(cur.tSpread/2)}° tra modelli</div>
+          </div>
+        </div>
+        <div class="hero-cond">
+          <span class="hero-cond-icon">${wIcon(mc)}</span>
+          <span class="hero-cond-text">${wDesc(mc)}</span>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><span class="hs-icon">💧</span><span class="hs-val">${r0(cur.hum)}%</span> umidità</div>
+          <div class="hero-stat"><span class="hs-icon">💨</span><span class="hs-val">${r0(cur.wind)}</span> km/h ${wDir(cur.wdir)}</div>
+          <div class="hero-stat"><span class="hs-icon">🌬️</span>raff. <span class="hs-val">${r0(cur.gust)}</span></div>
+          <div class="hero-stat"><span class="hs-icon">🔭</span>${visStr}</div>
+          <div class="hero-stat"><span class="hs-icon">🔵</span><span class="hs-val">${r0(cur.press)}</span> hPa</div>
+          ${cur.uvIdx!=null&&cur.uvIdx>0?`<div class="hero-stat"><span class="hs-icon">☀️</span>UV <span class="hs-val">${r1(cur.uvIdx)}</span></div>`:""}
+        </div>
+      </div>
+      <div class="hero-next">
+        <div class="hero-next-title">⚡ Prossimi eventi da tenere d'occhio</div>
+        <div class="hero-events">
+          ${topEvents.map(e=>`<div class="hero-ev ${e.cls}"><span class="hero-ev-time">${e.time}</span><span class="hero-ev-text">${e.text}</span></div>`).join("")}
+        </div>
+      </div>
+    </div>
+    <div class="hero-hours">
+      ${miniH.map(h=>`<div class="hero-hh"><div class="hh-t">${h.h}</div><div class="hh-i">${h.ic}</div><div class="hh-d">${h.t}°</div><div class="hh-r"><div class="hh-rf" style="height:${h.rPct}%"></div></div></div>`).join("")}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
 //  RENDER
 // ══════════════════════════════════════════════
 function render(){
@@ -380,6 +639,8 @@ function render(){
 UKV 30% · ECMWF 25% · GFS 15% · ICON 12% · GEM 8% · MétéoFr 5% · JMA 5%
 Affidabilità = 95 − (giorno×4) − (spread_T×3) − (spread_P×2) + bonus_modelli
 Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score composito)</div></details>
+  ${buildHero()}
+  ${prevSnapshot?buildDiffBanner(computeDiff(prevSnapshot,takeSnapshot())):""}
   <div class="ov">
     <div class="ov-c"><div class="b" style="color:var(--am)">${r0(allMx)}°</div><div class="l">Max periodo</div></div>
     <div class="ov-c"><div class="b" style="color:var(--bl)">${r0(allMn)}°</div><div class="l">Min periodo</div></div>
@@ -421,9 +682,17 @@ Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score co
     const da=dAggs[di],td=isToday(d)?" · OGGI":"";
     const syn=genSynopsis(di,da);
     const pds=phases.map(p=>phAgg(di,p.s,p.e));
+    
+    // Per-day diff
+    let dayDiffHtml="";
+    if(prevSnapshot){
+      const diff=computeDiff(prevSnapshot,takeSnapshot());
+      if(diff){const dd=diff.diffs.find(x=>x.date===d);
+        if(dd){dayDiffHtml=`<span style="margin-left:6px;font-size:10px">${diffBadge(dd.dMax,"° max")} ${diffBadge(dd.dPrec,"mm",true)}</span>`;}}
+    }
 
     H+=`<section class="day"><div class="day-hdr"><span class="day-nm">${dayNm(d)}</span><span class="day-dt">${fmtDate(d)}${td}</span>
-    <span class="cp ${confCls(da.conf)}">AFFIDABILITÀ ${da.conf}%</span></div>
+    <span class="cp ${confCls(da.conf)}">AFFIDABILITÀ ${da.conf}%${dayDiffHtml}</span></div>
     <div class="day-syn">${syn}</div><div class="phs">`;
 
     pds.forEach((ph,pi)=>{
@@ -593,17 +862,34 @@ async function dbGet(k){const db=await openDB();return new Promise((ok,no)=>{con
 // Save data after each successful fetch
 const origFetchAll=fetchAll;
 fetchAll=async function(){
+  // Before fetching new data, save current as "previous" for diff
+  try{
+    const currentSnap=takeSnapshot();
+    if(currentSnap&&currentSnap.dailies.length>0){
+      await dbSet('previous',currentSnap);
+    }
+  }catch(e){}
+  
   await origFetchAll();
+  
   // Save to IndexedDB for offline
   try{
     const snapshot={MD,MS,lastUp:lastUp?.toISOString()};
     await dbSet('latest',snapshot);
     console.log('Dati salvati per offline');
   }catch(e){console.warn('IndexedDB save failed',e);}
+  
+  // Load previous snapshot for diff
+  try{
+    prevSnapshot=await dbGet('previous');
+  }catch(e){prevSnapshot=null;}
 };
 
 // On load: if fetch fails, try offline data
 const origInit=(async()=>{
+  // Try to load previous snapshot first (for diff on first render)
+  try{prevSnapshot=await dbGet('previous');}catch(e){prevSnapshot=null;}
+  
   try{
     await fetchAll();
   }catch(e){
