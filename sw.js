@@ -8,12 +8,16 @@ const STATIC_ASSETS = [
 ];
 const DATA_CACHE = 'meteo-data-v1';
 
+// Listen for skip waiting message from client
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 // Install: cache static assets
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
-  self.skipWaiting();
 });
 
 // Activate: clean old caches
