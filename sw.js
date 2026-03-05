@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meteo-wm-v2';
+const CACHE_NAME = 'meteo-wm-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',

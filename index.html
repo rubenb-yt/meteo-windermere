@@ -201,6 +201,18 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-h
 .diff-item .di-old{font-size:9px;color:var(--tx3);margin-top:1px}
 .diff-item .di-change{display:flex;flex-direction:column;align-items:flex-end}
 
+/* ═══ METEOGRAM / TREND SECTION ═══ */
+.mg-section{background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:16px;margin-bottom:22px}
+.mg-title{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--pu);margin-bottom:10px}
+.mg-subtitle{font-size:10px;color:var(--tx3);margin-bottom:12px}
+.mg-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:800px){.mg-row{grid-template-columns:1fr}}
+.mg-box{position:relative;background:var(--card2);border:1px solid var(--brd);border-radius:10px;padding:12px;min-height:220px}
+.mg-box canvas{width:100%!important}
+.mg-label{font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:6px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.hist-empty{text-align:center;padding:30px;color:var(--tx3);font-size:11px;font-family:'JetBrains Mono',monospace}
+.hist-count{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;font-size:9px;font-family:'JetBrains Mono',monospace;background:rgba(167,139,250,.08);color:var(--pu);border:1px solid rgba(167,139,250,.15);margin-left:8px}
+
 .ld-ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,12,24,.9);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .35s}
 .ld-ov.hid{opacity:0;pointer-events:none}
 .ld-sp{width:36px;height:36px;border:3px solid var(--brd);border-top-color:var(--cy);border-radius:50%;animation:sp .7s linear infinite}
@@ -229,13 +241,16 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-h
 // ══════════════════════════════════════════════
 const LAT=54.38,LON=-2.91,LOC="Windermere, LA23",TZ="Europe/London",FD=5;
 const MODELS=[
-  {id:"ukmo",name:"Met Office UKV",color:"#22d3ee",key:"ukmo_seamless",w:.30,desc:"1.5km UK"},
-  {id:"ecmwf",name:"ECMWF IFS",color:"#fb7185",key:"ecmwf_ifs025",w:.25,desc:"25km globale"},
-  {id:"gfs",name:"GFS NOAA",color:"#a78bfa",key:"gfs_seamless",w:.15,desc:"13km globale"},
-  {id:"icon",name:"ICON DWD",color:"#4ade80",key:"icon_seamless",w:.12,desc:"13km EU"},
-  {id:"gem",name:"GEM Canada",color:"#f97316",key:"gem_seamless",w:.08,desc:"15km globale"},
+  {id:"ukmo",name:"Met Office UKV",color:"#22d3ee",key:"ukmo_seamless",w:.24,desc:"1.5km UK"},
+  {id:"ecmwf",name:"ECMWF IFS",color:"#fb7185",key:"ecmwf_ifs025",w:.20,desc:"25km globale"},
+  {id:"ecaifs",name:"ECMWF AIFS",color:"#f472b6",key:"ecmwf_aifs025",w:.10,desc:"25km AI-globale"},
+  {id:"gfs",name:"GFS NOAA",color:"#a78bfa",key:"gfs_seamless",w:.12,desc:"13km globale"},
+  {id:"icon",name:"ICON DWD",color:"#4ade80",key:"icon_seamless",w:.10,desc:"13km EU"},
+  {id:"gem",name:"GEM Canada",color:"#f97316",key:"gem_seamless",w:.06,desc:"15km globale"},
   {id:"mf",name:"Météo-Fr ARPEGE",color:"#fbbf24",key:"meteofrance_seamless",w:.05,desc:"10km EU"},
-  {id:"jma",name:"JMA GSM",color:"#818cf8",key:"jma_seamless",w:.05,desc:"20km globale"},
+  {id:"knmi",name:"KNMI Harmonie",color:"#06b6d4",key:"knmi_seamless",w:.05,desc:"5.5km EU"},
+  {id:"jma",name:"JMA GSM",color:"#818cf8",key:"jma_seamless",w:.04,desc:"20km globale"},
+  {id:"bom",name:"BOM ACCESS",color:"#10b981",key:"bom_access_global",w:.04,desc:"12km globale"},
 ];
 const HV="temperature_2m,apparent_temperature,relative_humidity_2m,precipitation_probability,precipitation,cloud_cover,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,surface_pressure,visibility,uv_index";
 const DV="temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,sunrise,sunset,weather_code,uv_index_max";
@@ -653,9 +668,10 @@ function render(){
   <details class="meth"><summary>⚙ Metodologia · ${actM} modelli NWP in tempo reale</summary>
   <p style="margin-top:8px">Dati orari scaricati in tempo reale da Open-Meteo. Ogni variabile è aggregata con media pesata, con pesi calibrati sulla risoluzione e accuratezza storica del modello per il UK nord-occidentale.</p>
   <div class="fm">Aggregazione = Σ(valore × peso) / Σ(pesi_attivi)
-UKV 30% · ECMWF 25% · GFS 15% · ICON 12% · GEM 8% · MétéoFr 5% · JMA 5%
+UKV 24% · ECMWF 20% · AIFS 10% · GFS 12% · ICON 10% · GEM 6% · MétéoFr 5% · KNMI 5% · JMA 4% · BOM 4%
 Affidabilità = 95 − (giorno×4) − (spread_T×3) − (spread_P×2) + bonus_modelli
-Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score composito)</div></details>
+Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score composito)
+Storico: fino a ${MAX_HISTORY} snapshot salvati in IndexedDB per analisi trend</div></details>
   ${buildHero()}
   ${_rDiff?buildDiffBanner(_rDiff):""}
   <div class="ov">
@@ -677,6 +693,28 @@ Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score co
     <div class="chart-box"><div class="chart-label">Vento e raffiche (km/h)</div><canvas id="chWind"></canvas></div>
     <div class="chart-box"><div class="chart-label">Pressione atmosferica (hPa)</div><canvas id="chPress"></canvas></div>
   </div></div>`;
+
+  // ═══ METEOGRAM — per-model traces ═══
+  H+=`<div class="mg-section"><div class="mg-title">🔬 Meteogramma Multi-Modello — confronto diretto tra ${actM} modelli</div>
+  <div class="mg-subtitle">Ogni linea rappresenta un modello NWP diverso. Le divergenze indicano incertezza nella previsione.</div>
+  <div class="mg-row">
+    <div class="mg-box"><div class="mg-label">Temperatura per modello (°C)</div><canvas id="chMeteogramTemp"></canvas></div>
+    <div class="mg-box"><div class="mg-label">Precipitazioni per modello (mm/h)</div><canvas id="chMeteogramPrec"></canvas></div>
+  </div></div>`;
+
+  // ═══ TREND HISTORY — forecast evolution ═══
+  const histCount=snapshotHistory.length;
+  H+=`<div class="mg-section"><div class="mg-title">📈 Evoluzione Previsioni nel Tempo <span class="hist-count">${histCount} snapshot salvati</span></div>`;
+  if(histCount>=2){
+    H+=`<div class="mg-subtitle">Come sono cambiate le previsioni per ogni giorno tra un aggiornamento e l'altro. Dati salvati localmente (PWA).</div>
+    <div class="mg-row">
+      <div class="mg-box"><div class="mg-label">Evoluzione temperatura max prevista</div><canvas id="chTrendTemp"></canvas></div>
+      <div class="mg-box"><div class="mg-label">Evoluzione pioggia totale prevista</div><canvas id="chTrendPrec"></canvas></div>
+    </div>`;
+  }else{
+    H+=`<div class="hist-empty">⏳ Servono almeno 2 aggiornamenti per visualizzare il trend.<br>Ogni refresh salva uno snapshot. Attualmente: ${histCount}/2 necessari.</div>`;
+  }
+  H+=`</div>`;
 
   // ═══ TRAFFIC LIGHT STRIP ═══
   const synCache=dates.map((d,i)=>genSynopsis(i,dAggs[i]));
@@ -776,11 +814,106 @@ Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score co
     H+=`</table></div></section>`;
   });
 
-  H+=`<footer class="ftr"><p>Dashboard live v2 · Dati <span class="cy">Open-Meteo API</span> (CC BY 4.0) · UK Met Office, ECMWF, NOAA GFS, DWD ICON, ECCC GEM, Météo-France, JMA</p>
+  H+=`<footer class="ftr"><p>Dashboard live v3 · Dati <span class="cy">Open-Meteo API</span> (CC BY 4.0) · UK Met Office, ECMWF (IFS+AIFS), NOAA GFS, DWD ICON, ECCC GEM, Météo-France, KNMI, JMA, BOM</p>
   <p style="margin-top:3px">Le previsioni sono stime probabilistiche. Premi "Aggiorna dati" per riscaricare e ricalcolare.</p></footer>`;
 
   app.innerHTML=H;
   buildCharts();
+}
+
+// ══════════════════════════════════════════════
+//  METEOGRAM — individual model traces
+// ══════════════════════════════════════════════
+function buildMeteogram(){
+  const hours=getHourTimes();if(!hours.length)return;
+  const N=Math.min(hours.length,FD*24);
+  const labels=[];
+  for(let i=0;i<N;i++){const t=new Date(hours[i]);labels.push(t.getHours()===0?t.toLocaleDateString("it-IT",{weekday:"short",day:"numeric"}):String(t.getHours()).padStart(2,"0")+":00");}
+
+  const gridColor="rgba(30,41,59,.6)";const tickColor="#5e7086";
+  const baseOpts={responsive:true,maintainAspectRatio:false,animation:{duration:600},
+    plugins:{legend:{display:true,position:'bottom',labels:{color:tickColor,font:{size:8,family:"'JetBrains Mono'"},boxWidth:12,padding:6}},
+    tooltip:{mode:'index',intersect:false,backgroundColor:"#101726",borderColor:"#273347",borderWidth:1,titleFont:{size:10},bodyFont:{size:9},cornerRadius:6}},
+    scales:{x:{ticks:{color:tickColor,font:{size:7,family:"'JetBrains Mono'"},maxRotation:45,autoSkip:true,maxTicksLimit:20},grid:{color:gridColor}},
+    y:{ticks:{color:tickColor,font:{size:9,family:"'JetBrains Mono'"}},grid:{color:gridColor}}}};
+
+  // Temperature meteogram — per-model lines
+  const ctxMT=document.getElementById("chMeteogramTemp");
+  if(ctxMT){
+    ctxMT.parentElement.style.height="260px";
+    const datasets=[];
+    for(const m of MODELS){
+      if(MS[m.id]!=="ok")continue;
+      const data=[];
+      for(let i=0;i<N;i++){data.push(hv(m.id,"temperature_2m")?.[i]??null);}
+      datasets.push({label:m.name,data,borderColor:m.color,backgroundColor:"transparent",borderWidth:1.5,pointRadius:0,tension:.3});
+    }
+    charts.push(new Chart(ctxMT,{type:"line",data:{labels,datasets},
+      options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,title:{display:true,text:"°C",color:tickColor,font:{size:9}}}}}}));
+  }
+
+  // Precipitation meteogram — per-model bars stacked side by side
+  const ctxMP=document.getElementById("chMeteogramPrec");
+  if(ctxMP){
+    ctxMP.parentElement.style.height="260px";
+    const datasets=[];
+    for(const m of MODELS){
+      if(MS[m.id]!=="ok")continue;
+      const data=[];
+      for(let i=0;i<N;i++){data.push(hv(m.id,"precipitation")?.[i]??null);}
+      datasets.push({label:m.name,data,borderColor:m.color,backgroundColor:m.color+"40",borderWidth:1,borderRadius:1});
+    }
+    charts.push(new Chart(ctxMP,{type:"bar",data:{labels,datasets},
+      options:{...baseOpts,plugins:{...baseOpts.plugins,legend:{...baseOpts.plugins.legend}},
+      scales:{...baseOpts.scales,y:{...baseOpts.scales.y,title:{display:true,text:"mm/h",color:tickColor,font:{size:9}}}}}}));
+  }
+}
+
+// ══════════════════════════════════════════════
+//  TREND HISTORY CHART — how forecasts evolved
+// ══════════════════════════════════════════════
+function buildTrendChart(){
+  if(!snapshotHistory||snapshotHistory.length<2)return;
+
+  const gridColor="rgba(30,41,59,.6)";const tickColor="#5e7086";
+  const baseOpts={responsive:true,maintainAspectRatio:false,animation:{duration:600},
+    plugins:{legend:{display:true,position:'bottom',labels:{color:tickColor,font:{size:8,family:"'JetBrains Mono'"},boxWidth:12,padding:6}},
+    tooltip:{backgroundColor:"#101726",borderColor:"#273347",borderWidth:1,titleFont:{size:10},bodyFont:{size:9},cornerRadius:6}},
+    scales:{x:{ticks:{color:tickColor,font:{size:7,family:"'JetBrains Mono'"},maxRotation:45},grid:{color:gridColor}},
+    y:{ticks:{color:tickColor,font:{size:9,family:"'JetBrains Mono'"}},grid:{color:gridColor}}}};
+
+  // Collect all unique dates across history
+  const allDates=new Set();
+  snapshotHistory.forEach(s=>s.dates?.forEach(d=>allDates.add(d)));
+  const dates=[...allDates].sort();
+
+  // Temperature trend per date over time
+  const ctxTT=document.getElementById("chTrendTemp");
+  if(ctxTT){
+    ctxTT.parentElement.style.height="260px";
+    const labels=snapshotHistory.map(s=>{const d=new Date(s.time);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+" "+d.toLocaleDateString("it-IT",{day:"numeric",month:"short"});});
+    const colors=["#fbbf24","#22d3ee","#fb7185","#4ade80","#a78bfa","#f97316","#818cf8"];
+    const datasets=dates.slice(0,5).map((dt,ci)=>{
+      const data=snapshotHistory.map(s=>{const di=s.dates?.indexOf(dt);return di>=0&&s.dailies[di]?s.dailies[di].mx:null;});
+      return{label:dayNm(dt)+" max",data,borderColor:colors[ci%colors.length],backgroundColor:"transparent",borderWidth:2,pointRadius:2,tension:.3};
+    });
+    charts.push(new Chart(ctxTT,{type:"line",data:{labels,datasets},
+      options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,title:{display:true,text:"°C max prevista",color:tickColor,font:{size:9}}}}}}));
+  }
+
+  // Precipitation trend per date over time
+  const ctxTP=document.getElementById("chTrendPrec");
+  if(ctxTP){
+    ctxTP.parentElement.style.height="260px";
+    const labels=snapshotHistory.map(s=>{const d=new Date(s.time);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+" "+d.toLocaleDateString("it-IT",{day:"numeric",month:"short"});});
+    const colors=["#38bdf8","#6366f1","#f97316","#4ade80","#fb7185","#fbbf24","#818cf8"];
+    const datasets=dates.slice(0,5).map((dt,ci)=>{
+      const data=snapshotHistory.map(s=>{const di=s.dates?.indexOf(dt);return di>=0&&s.dailies[di]?s.dailies[di].pSum:null;});
+      return{label:dayNm(dt)+" pioggia",data,borderColor:colors[ci%colors.length],backgroundColor:colors[ci%colors.length]+"20",borderWidth:2,pointRadius:2,tension:.3,fill:true};
+    });
+    charts.push(new Chart(ctxTP,{type:"line",data:{labels,datasets},
+      options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,title:{display:true,text:"mm totali previsti",color:tickColor,font:{size:9}}}}}}));
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -853,6 +986,10 @@ function buildCharts(){
       {label:"Pressione hPa",data:press,borderColor:"#4ade80",backgroundColor:"rgba(74,222,128,.08)",borderWidth:1.5,pointRadius:0,tension:.4,fill:true},
     ]},options:{...baseOpts,scales:{...baseOpts.scales,y:{...baseOpts.scales.y,min:pMin,max:pMax,title:{display:true,text:"hPa",color:tickColor,font:{size:9}}}}}}));
   }
+
+  // Build meteogram and trend charts
+  buildMeteogram();
+  buildTrendChart();
 }
 
 // ══════════════════════════════════════════════
@@ -868,10 +1005,15 @@ async function doRef(){
 // ══════════════════════════════════════════════
 //  OFFLINE CACHE (IndexedDB)
 // ══════════════════════════════════════════════
-const DB_NAME='meteoWM',DB_VER=1,STORE='cache';
-function openDB(){return new Promise((ok,no)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onupgradeneeded=e=>{e.target.result.createObjectStore(STORE)};r.onsuccess=e=>ok(e.target.result);r.onerror=e=>no(e);})}
+const DB_NAME='meteoWM',DB_VER=2,STORE='cache',HIST_STORE='history';
+const MAX_HISTORY=48;
+function openDB(){return new Promise((ok,no)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onupgradeneeded=e=>{const db=e.target.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE);if(!db.objectStoreNames.contains(HIST_STORE))db.createObjectStore(HIST_STORE,{keyPath:'id',autoIncrement:true});};r.onsuccess=e=>ok(e.target.result);r.onerror=e=>no(e);})}
 async function dbSet(k,v){const db=await openDB();return new Promise((ok,no)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(v,k);tx.oncomplete=()=>ok();tx.onerror=e=>no(e);})}
 async function dbGet(k){const db=await openDB();return new Promise((ok,no)=>{const tx=db.transaction(STORE,'readonly');const r=tx.objectStore(STORE).get(k);r.onsuccess=()=>ok(r.result);r.onerror=e=>no(e);})}
+async function histPush(snap){const db=await openDB();return new Promise((ok,no)=>{const tx=db.transaction(HIST_STORE,'readwrite');const st=tx.objectStore(HIST_STORE);st.add(snap);tx.oncomplete=()=>ok();tx.onerror=e=>no(e);})}
+async function histGetAll(){const db=await openDB();return new Promise((ok,no)=>{const tx=db.transaction(HIST_STORE,'readonly');const r=tx.objectStore(HIST_STORE).getAll();r.onsuccess=()=>ok(r.result||[]);r.onerror=e=>no(e);})}
+async function histPrune(){try{const db=await openDB();const tx=db.transaction(HIST_STORE,'readwrite');const st=tx.objectStore(HIST_STORE);const count=await new Promise(ok=>{const r=st.count();r.onsuccess=()=>ok(r.result);});if(count>MAX_HISTORY){const cursor=st.openCursor();let toDelete=count-MAX_HISTORY;cursor.onsuccess=e=>{const c=e.target.result;if(c&&toDelete>0){c.delete();toDelete--;c.continue();}}};}catch(e){}}
+let snapshotHistory=[];
 
 // Save data after each successful fetch
 const origFetchAll=fetchAll;
@@ -883,16 +1025,26 @@ fetchAll=async function(){
       await dbSet('previous',currentSnap);
     }
   }catch(e){}
-  
+
   await origFetchAll();
-  
+
   // Save to IndexedDB for offline
   try{
     const snapshot={MD,MS,lastUp:lastUp?.toISOString()};
     await dbSet('latest',snapshot);
     console.log('Dati salvati per offline');
   }catch(e){console.warn('IndexedDB save failed',e);}
-  
+
+  // Save snapshot to history time-series
+  try{
+    const histSnap=takeSnapshot();
+    if(histSnap&&histSnap.dailies.length>0){
+      await histPush(histSnap);
+      await histPrune();
+      snapshotHistory=await histGetAll();
+    }
+  }catch(e){console.warn('History save failed',e);}
+
   // Load previous snapshot for diff
   try{
     prevSnapshot=await dbGet('previous');
@@ -901,8 +1053,9 @@ fetchAll=async function(){
 
 // On load: if fetch fails, try offline data
 (async()=>{
-  // Try to load previous snapshot first (for diff on first render)
+  // Try to load previous snapshot and history
   try{prevSnapshot=await dbGet('previous');}catch(e){prevSnapshot=null;}
+  try{snapshotHistory=await histGetAll();}catch(e){snapshotHistory=[];}
   
   try{
     await fetchAll();
