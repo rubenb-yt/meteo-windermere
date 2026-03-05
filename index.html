@@ -205,9 +205,22 @@ body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;min-h
 .ld-ov.hid{opacity:0;pointer-events:none}
 .ld-sp{width:36px;height:36px;border:3px solid var(--brd);border-top-color:var(--cy);border-radius:50%;animation:sp .7s linear infinite}
 .ld-tx{font-size:13px;color:var(--tx2)}.ld-pr{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy)}
+
+/* PULL TO REFRESH */
+.ptr{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:transform .2s}
+.ptr-inner{background:var(--card);border:1px solid var(--brd);border-radius:0 0 12px 12px;padding:8px 18px;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cy);box-shadow:0 4px 20px rgba(0,0,0,.3);transform:translateY(-100%);transition:transform .25s}
+.ptr-inner.show{transform:translateY(0)}
+.ptr-inner.loading .ptr-icon{animation:sp .7s linear infinite}
+.ptr-icon{width:16px;height:16px;transition:transform .2s}
+
+/* AUTO-REFRESH BAR */
+.ar-bar{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tx3);margin-top:2px}
+.ar-bar .ar-dot{width:5px;height:5px;border-radius:50%;background:var(--cy);animation:pulse 2s infinite}
+@media(prefers-reduced-motion:reduce){.ar-bar .ar-dot{animation:none}.ptr-inner{transition:none}}
 </style>
 </head>
 <body>
+<div class="ptr" id="ptr"><div class="ptr-inner" id="ptrInner"><svg class="ptr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg><span id="ptrText">Trascina per aggiornare</span></div></div>
 <div id="ld" class="ld-ov"><div class="ld-sp"></div><div class="ld-tx">Caricamento modelli NWP...</div><div class="ld-pr" id="lp">Inizializzazione...</div></div>
 <div class="wrap" id="app"></div>
 <script>
@@ -232,6 +245,7 @@ const DV="temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_
 // ══════════════════════════════════════════════
 let MD={},MS={},lastUp=null,charts=[];
 let prevSnapshot=null; // Previous aggregation for diff
+let _aggHCache={}; // Memoization for aggH
 
 // ══════════════════════════════════════════════
 //  SNAPSHOT & DIFF ENGINE
@@ -330,7 +344,7 @@ async function fetchAll(){
     }catch(e){console.warn(m.name,e);MS[m.id]="er";}
     dn++;if(p)p.textContent=`Modelli: ${dn}/${MODELS.length}`;
   });
-  await Promise.allSettled(ps);lastUp=new Date();
+  await Promise.allSettled(ps);lastUp=new Date();_aggHCache={};
   if(p)p.textContent="Aggregazione...";
 }
 
@@ -343,11 +357,13 @@ function getDates(){for(const m of MODELS){const d=MD[m.id];if(d?.daily?.time)re
 function getHourTimes(){for(const m of MODELS){const d=MD[m.id];if(d?.hourly?.time)return d.hourly.time;}return[];}
 
 function wAvg(vals,wts){let s=0,w=0;for(let i=0;i<vals.length;i++){const v=vals[i];if(v!=null&&!isNaN(v)){s+=v*wts[i];w+=wts[i];}}return w>0?s/w:null;}
+function circAvg(vals,wts){let sinS=0,cosS=0,w=0;for(let i=0;i<vals.length;i++){const v=vals[i];if(v!=null&&!isNaN(v)){const r=v*Math.PI/180;sinS+=Math.sin(r)*wts[i];cosS+=Math.cos(r)*wts[i];w+=wts[i];}}if(w===0)return null;const a=Math.atan2(sinS/w,cosS/w)*180/Math.PI;return(a+360)%360;}
 function spread(vals){const v=vals.filter(x=>x!=null&&!isNaN(x));return v.length<2?0:Math.max(...v)-Math.min(...v);}
 function r1(n){return n!=null?Math.round(n*10)/10:"—";}
 function r0(n){return n!=null?Math.round(n):"—";}
 
 function aggH(idx){
+  if(_aggHCache[idx])return _aggHCache[idx];
   const t=[],at=[],hu=[],pr=[],pp=[],cc=[],ws=[],wg=[],wd=[],sp=[],vi=[],uv=[],wc=[],ww=[];
   for(const m of MODELS){if(MS[m.id]!=="ok")continue;
     t.push(hv(m.id,"temperature_2m")?.[idx]??null);
@@ -365,10 +381,11 @@ function aggH(idx){
     wc.push(hv(m.id,"weather_code")?.[idx]??null);
     ww.push(m.w);
   }
-  return{temp:wAvg(t,ww),feels:wAvg(at,ww),hum:wAvg(hu,ww),prec:wAvg(pr,ww),pProb:wAvg(pp,ww),cloud:wAvg(cc,ww),
-    wind:wAvg(ws,ww),gust:wAvg(wg,ww),wdir:wAvg(wd,ww),press:wAvg(sp,ww),vis:wAvg(vi,ww),uvIdx:wAvg(uv,ww),
+  const result={temp:wAvg(t,ww),feels:wAvg(at,ww),hum:wAvg(hu,ww),prec:wAvg(pr,ww),pProb:wAvg(pp,ww),cloud:wAvg(cc,ww),
+    wind:wAvg(ws,ww),gust:wAvg(wg,ww),wdir:circAvg(wd,ww),press:wAvg(sp,ww),vis:wAvg(vi,ww),uvIdx:wAvg(uv,ww),
     codes:wc.filter(c=>c!=null),tSpread:spread(t),rawT:t,rawP:pr,rawPP:pp,
     tMin:(()=>{const f=t.filter(x=>x!=null);return f.length?Math.min(...f):null})(),tMax:(()=>{const f=t.filter(x=>x!=null);return f.length?Math.max(...f):null})()};
+  _aggHCache[idx]=result;return result;
 }
 
 function aggD(di){
@@ -387,7 +404,7 @@ function aggD(di){
 }
 
 // ── WEATHER HELPERS ──
-function wIcon(c){if(c==null)return"❓";if(c===0)return"☀️";if(c<=3)return"⛅";if(c>=45&&c<=48)return"🌫️";if(c>=51&&c<=55)return"🌦️";if(c>=56&&c<=67)return"🌨️";if(c>=61&&c<=65)return"🌧️";if(c>=71&&c<=77)return"❄️";if(c>=80&&c<=82)return"🌧️";if(c>=85)return"❄️";if(c>=95)return"⛈️";return"☁️";}
+function wIcon(c){if(c==null)return"❓";if(c===0)return"☀️";if(c<=3)return"⛅";if(c>=45&&c<=48)return"🌫️";if(c>=51&&c<=55)return"🌦️";if(c>=61&&c<=65)return"🌧️";if(c>=56&&c<=57)return"🌨️";if(c>=66&&c<=67)return"🌨️";if(c>=71&&c<=77)return"❄️";if(c>=80&&c<=82)return"🌧️";if(c>=85&&c<=86)return"❄️";if(c>=95)return"⛈️";return"☁️";}
 function wDesc(c){if(c==null)return"N/D";const m={0:"Sereno",1:"Prev. sereno",2:"Parz. nuvoloso",3:"Coperto",45:"Nebbia",48:"Nebbia dep.",51:"Pioviggine",53:"Pioviggine mod.",55:"Pioviggine forte",56:"Pioggia gelata",57:"Pioggia gelata",61:"Pioggia leggera",63:"Pioggia moderata",65:"Pioggia forte",66:"Pioggia gelata",67:"Pioggia gelata",71:"Neve leggera",73:"Neve moderata",75:"Neve forte",77:"Granuli neve",80:"Rovescio legg.",81:"Rovescio mod.",82:"Rovescio forte",85:"Neve a rovesci",86:"Neve forte rov.",95:"Temporale",96:"Temporale grandine",99:"Temporale grandine"};return m[c]||"Nuvoloso";}
 function wDir(d){if(d==null)return"";const ds=["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];return ds[Math.round(d/22.5)%16];}
 function majCode(cs){const v=cs.filter(c=>c!=null);if(!v.length)return null;const ct={};v.forEach(c=>{ct[c]=(ct[c]||0)+1});return+Object.entries(ct).sort((a,b)=>b[1]-a[1])[0][0];}
@@ -614,6 +631,8 @@ function render(){
   if(!dates.length){app.innerHTML=`<div class="hdr"><h1>Errore</h1><p style="color:var(--ro)">Nessun dato. Riprova.</p></div>`;return;}
   
   const dAggs=dates.map((_,i)=>aggD(i));
+  const _rSnap=takeSnapshot();
+  const _rDiff=prevSnapshot?computeDiff(prevSnapshot,_rSnap):null;
   const actM=MODELS.filter(m=>MS[m.id]==="ok").length;
   const allMx=Math.max(...dAggs.map(d=>d.mx).filter(v=>v!=null));
   const allMn=Math.min(...dAggs.map(d=>d.mn).filter(v=>v!=null));
@@ -627,7 +646,8 @@ function render(){
   <div class="ref-bar">
     <button class="btn-r" id="btnR" onclick="doRef()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Aggiorna dati</button>
     <span class="upd-info"><span class="sd ok"></span>${lastUp?"Aggiornato: "+lastUp.toLocaleTimeString("it-IT"):""} · ${actM}/${MODELS.length} modelli</span>
-    <span class="upd-info" style="width:100%;text-align:center;margin-top:4px;font-size:9px;opacity:.6">Scorri in basso per aggiornare · I dati vengono salvati per uso offline</span>
+    <span class="upd-info" style="width:100%;text-align:center;margin-top:4px;font-size:9px;opacity:.6">Trascina in basso per aggiornare · I dati vengono salvati per uso offline</span>
+    <div class="ar-bar"><span class="ar-dot"></span>Auto-refresh ogni 15 min · <span id="arCountdown"></span></div>
   </div>
   <div class="srcs">${MODELS.map(m=>`<div class="sc ${MS[m.id]==="ok"?"on":"er"}"><span class="dt" style="background:${m.color}"></span>${m.name} (${Math.round(m.w*100)}%)</div>`).join("")}</div>
   <details class="meth"><summary>⚙ Metodologia · ${actM} modelli NWP in tempo reale</summary>
@@ -637,7 +657,7 @@ UKV 30% · ECMWF 25% · GFS 15% · ICON 12% · GEM 8% · MétéoFr 5% · JMA 5%
 Affidabilità = 95 − (giorno×4) − (spread_T×3) − (spread_P×2) + bonus_modelli
 Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score composito)</div></details>
   ${buildHero()}
-  ${prevSnapshot?buildDiffBanner(computeDiff(prevSnapshot,takeSnapshot())):""}
+  ${_rDiff?buildDiffBanner(_rDiff):""}
   <div class="ov">
     <div class="ov-c"><div class="b" style="color:var(--am)">${r0(allMx)}°</div><div class="l">Max periodo</div></div>
     <div class="ov-c"><div class="b" style="color:var(--bl)">${r0(allMn)}°</div><div class="l">Min periodo</div></div>
@@ -659,9 +679,10 @@ Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score co
   </div></div>`;
 
   // ═══ TRAFFIC LIGHT STRIP ═══
+  const synCache=dates.map((d,i)=>genSynopsis(i,dAggs[i]));
   H+=`<div class="tl-strip">`;
   dates.forEach((d,i)=>{
-    const da=dAggs[i],tl=trafficLight(i,da),syn=genSynopsis(i,da);
+    const da=dAggs[i],tl=trafficLight(i,da),syn=synCache[i];
     const td=isToday(d)?" · OGGI":"";
     H+=`<div class="tl-card ${tl.color}"><div class="tl-hdr"><div class="tl-light"></div><div><div class="tl-day">${dayNm(d)}</div><div class="tl-date">${fmtDate(d)}${td}</div></div></div>
     <div class="tl-conf">${da.conf}%</div>
@@ -677,15 +698,14 @@ Sinossi: rilevamento fronti (ΔP + rotazione vento), finestra migliore (score co
 
   dates.forEach((d,di)=>{
     const da=dAggs[di],td=isToday(d)?" · OGGI":"";
-    const syn=genSynopsis(di,da);
+    const syn=synCache[di];
     const pds=phases.map(p=>phAgg(di,p.s,p.e));
-    
+
     // Per-day diff
     let dayDiffHtml="";
-    if(prevSnapshot){
-      const diff=computeDiff(prevSnapshot,takeSnapshot());
-      if(diff){const dd=diff.diffs.find(x=>x.date===d);
-        if(dd){dayDiffHtml=`<span style="margin-left:6px;font-size:10px">${diffBadge(dd.dMax,"° max")} ${diffBadge(dd.dPrec,"mm",true)}</span>`;}}
+    if(_rDiff){
+      const dd=_rDiff.diffs.find(x=>x.date===d);
+      if(dd){dayDiffHtml=`<span style="margin-left:6px;font-size:10px">${diffBadge(dd.dMax,"° max")} ${diffBadge(dd.dPrec,"mm",true)}</span>`;}
     }
 
     H+=`<section class="day"><div class="day-hdr"><span class="day-nm">${dayNm(d)}</span><span class="day-dt">${fmtDate(d)}${td}</span>
@@ -922,6 +942,66 @@ if('serviceWorker' in navigator){
     console.log('SW registered',reg.scope);
   }).catch(err=>console.warn('SW failed',err));
 }
+
+// ══════════════════════════════════════════════
+//  PULL-TO-REFRESH
+// ══════════════════════════════════════════════
+(function(){
+  const ptrInner=document.getElementById('ptrInner');
+  const ptrText=document.getElementById('ptrText');
+  let startY=0,pulling=false,triggered=false;
+  const threshold=80;
+
+  document.addEventListener('touchstart',function(e){
+    if(window.scrollY===0&&!triggered){startY=e.touches[0].clientY;pulling=true;}
+  },{passive:true});
+
+  document.addEventListener('touchmove',function(e){
+    if(!pulling||triggered)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy>10&&dy<150){
+      ptrInner.classList.add('show');
+      ptrInner.style.opacity=Math.min(1,dy/threshold);
+      ptrText.textContent=dy>=threshold?'Rilascia per aggiornare':'Trascina per aggiornare';
+    }else if(dy<=0){pulling=false;ptrInner.classList.remove('show');}
+  },{passive:true});
+
+  document.addEventListener('touchend',function(){
+    if(!pulling)return;
+    const wasReady=ptrText.textContent==='Rilascia per aggiornare';
+    if(wasReady&&!triggered){
+      triggered=true;
+      ptrInner.classList.add('loading');
+      ptrText.textContent='Aggiornamento...';
+      doRef().then(()=>{
+        ptrInner.classList.remove('show','loading');
+        ptrInner.style.opacity='';
+        triggered=false;
+      });
+    }else{ptrInner.classList.remove('show');ptrInner.style.opacity='';}
+    pulling=false;
+  },{passive:true});
+})();
+
+// ══════════════════════════════════════════════
+//  AUTO-REFRESH (every 15 min)
+// ══════════════════════════════════════════════
+const AR_INTERVAL=15*60*1000;
+let arTimer=null,arCountdown=null;
+function startAutoRefresh(){
+  clearInterval(arTimer);clearInterval(arCountdown);
+  let remaining=AR_INTERVAL;
+  arCountdown=setInterval(()=>{
+    remaining-=1000;
+    const el=document.getElementById('arCountdown');
+    if(el){const m=Math.floor(remaining/60000);const s=Math.floor((remaining%60000)/1000);el.textContent=`${m}:${String(s).padStart(2,'0')}`;}
+    if(remaining<=0){remaining=AR_INTERVAL;doRef();}
+  },1000);
+}
+startAutoRefresh();
+// Reset timer after manual refresh
+const _origDoRef=doRef;
+doRef=async function(){await _origDoRef();startAutoRefresh();};
 </script>
 </body>
 </html>
